@@ -39,7 +39,7 @@ async function analyzeImage() {
 
 // Функция для отправки изображения на Google Vision API
 async function analyzeWithGoogleVision(imageData) {
-  const apiKey = 'AIzaSyDJr9fqkL8M7NB8dtqZPA0EDgEo2y75bxQ';  // Ваш API-ключ
+  const apiKey = 'AIzaSyAeg3tYDNBfN4xN_GTcopb7IPTWPyrcw40';  // Ваш новый API-ключ
 
   try {
     const response = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`, {
@@ -61,9 +61,6 @@ async function analyzeWithGoogleVision(imageData) {
 
     const data = await response.json();
     
-    // Выводим в консоль весь ответ от API для отладки
-    console.log('API Response:', data);
-
     // Проверяем, есть ли результаты
     if (data.responses && data.responses[0].labelAnnotations && data.responses[0].labelAnnotations.length > 0) {
       const label = data.responses[0].labelAnnotations[0].description;
