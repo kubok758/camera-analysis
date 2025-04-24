@@ -41,31 +41,39 @@ async function analyzeImage() {
 async function analyzeWithGoogleVision(imageData) {
   const apiKey = 'AIzaSyDJr9fqkL8M7NB8dtqZPA0EDgEo2y75bxQ';  // Ваш API-ключ
 
-  const response = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`, {
-    method: 'POST',
-    body: JSON.stringify({
-      requests: [
-        {
-          image: {
-            content: imageData.split(',')[1]  // Отправляем base64-encoded изображение
-          },
-          features: [
-            { type: "LABEL_DETECTION", maxResults: 1 }  // Используем LABEL_DETECTION для распознавания объектов
-          ]
-        }
-      ]
-    }),
-    headers: { 'Content-Type': 'application/json' }
-  });
+  try {
+    const response = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`, {
+      method: 'POST',
+      body: JSON.stringify({
+        requests: [
+          {
+            image: {
+              content: imageData.split(',')[1]  // Отправляем base64-encoded изображение
+            },
+            features: [
+              { type: "LABEL_DETECTION", maxResults: 1 }  // Используем LABEL_DETECTION для распознавания объектов
+            ]
+          }
+        ]
+      }),
+      headers: { 'Content-Type': 'application/json' }
+    });
 
-  const data = await response.json();
-  
-  // Извлекаем описание первого результата
-  if (data.responses && data.responses[0].labelAnnotations) {
-    const label = data.responses[0].labelAnnotations[0].description;
-    return label;
-  } else {
-    return "Не удалось распознать объект.";
+    const data = await response.json();
+    
+    // Выводим в консоль весь ответ от API для отладки
+    console.log('API Response:', data);
+
+    // Проверяем, есть ли результаты
+    if (data.responses && data.responses[0].labelAnnotations && data.responses[0].labelAnnotations.length > 0) {
+      const label = data.responses[0].labelAnnotations[0].description;
+      return label;
+    } else {
+      return "Не удалось распознать объект.";
+    }
+  } catch (error) {
+    console.error('Ошибка при запросе к API:', error);
+    return "Произошла ошибка при анализе изображения.";
   }
 }
 
