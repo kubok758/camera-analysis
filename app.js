@@ -30,18 +30,43 @@ async function analyzeImage() {
   // Преобразуем изображение в base64
   const imageData = canvas.toDataURL('image/jpeg');
 
-  // Отправляем изображение на сервер для анализа (необходимо настроить сервер или использовать API нейросети)
-  const result = await analyzeWithNeuralNetwork(imageData);
+  // Отправляем изображение на сервер Google Vision API для анализа
+  const result = await analyzeWithGoogleVision(imageData);
 
   // Выводим результат
   resultDiv.textContent = `Это: ${result}`;
 }
 
-// Функция для отправки изображения на нейросеть
-async function analyzeWithNeuralNetwork(imageData) {
-  // Здесь будет код для работы с нейросетью, например, через API (предполагается серверная часть)
-  // Для примера вернем случайный результат
-  return "Кошка";
+// Функция для отправки изображения на Google Vision API
+async function analyzeWithGoogleVision(imageData) {
+  const apiKey = 'AIzaSyDJr9fqkL8M7NB8dtqZPA0EDgEo2y75bxQ';  // Ваш API-ключ
+
+  const response = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`, {
+    method: 'POST',
+    body: JSON.stringify({
+      requests: [
+        {
+          image: {
+            content: imageData.split(',')[1]  // Отправляем base64-encoded изображение
+          },
+          features: [
+            { type: "LABEL_DETECTION", maxResults: 1 }  // Используем LABEL_DETECTION для распознавания объектов
+          ]
+        }
+      ]
+    }),
+    headers: { 'Content-Type': 'application/json' }
+  });
+
+  const data = await response.json();
+  
+  // Извлекаем описание первого результата
+  if (data.responses && data.responses[0].labelAnnotations) {
+    const label = data.responses[0].labelAnnotations[0].description;
+    return label;
+  } else {
+    return "Не удалось распознать объект.";
+  }
 }
 
 // Запрашиваем доступ к камере при загрузке страницы
